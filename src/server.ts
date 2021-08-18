@@ -2,6 +2,11 @@ import "reflect-metadata";
 import express, { NextFunction, Request, Response } from "express";
 import "express-async-errors";
 import mongoose from "mongoose";
+import { graphqlHTTP } from 'express-graphql';
+import { makeExecutableSchema } from "graphql-tools"
+
+import resolvers from "./resolvers";
+import typeDefs from "./schema";
 
 const app = express();
 
@@ -12,6 +17,16 @@ mongoose.connect(
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+const schema = makeExecutableSchema({
+  resolvers,
+  typeDefs
+})
+
+app.use("/graphql", graphqlHTTP({
+  schema,
+  graphiql: true // Disponibiliza IDE para consumir graphql
+}))
 
 app.use(
   (error: Error, request: Request, response: Response, next: NextFunction) => {
